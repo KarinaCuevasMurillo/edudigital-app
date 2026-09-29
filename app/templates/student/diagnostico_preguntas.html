@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Diagnóstico — {{ materia.nombre }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Diagnóstico: {{ materia.nombre }}</h1>
+    <p>Responde estas preguntas para ubicar tu nivel inicial en cada tema.</p>
+
+    {% if preguntas %}
+    <form method="POST">
+        <input type="hidden" name="materia_id" value="{{ materia.id }}">
+        <input type="hidden" name="respuestas_enviadas" value="1">
+
+        {% for pregunta in preguntas %}
+        <div class="pregunta-bloque">
+            <p><strong>{{ pregunta.enunciado }}</strong></p>
+            <input type="hidden" name="pregunta_tema_{{ pregunta.tema_id }}" value="{{ pregunta.id }}">
+
+            {% for opcion in pregunta.opciones %}
+                {% set letra = opcion[0] %}
+                <label class="opcion-label">
+                    <input type="radio" name="respuesta_tema_{{ pregunta.tema_id }}" value="{{ letra }}" required>
+                    {{ opcion }}
+                </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit">Enviar respuestas</button>
+    </form>
+    {% else %}
+    <p><em>Esta materia todavía no tiene preguntas de diagnóstico cargadas.</em></p>
+    {% endif %}
+</div>
+{% endblock %}

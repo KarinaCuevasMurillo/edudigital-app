@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Diagnóstico inicial — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Diagnóstico inicial</h1>
+    <p>Elige la materia en la que quieres empezar. Te haremos algunas preguntas para ubicar tu nivel de conocimiento actual.</p>
+
+    {% if materias %}
+    <form method="POST">
+        <label for="materia_id">Materia</label>
+        <select id="materia_id" name="materia_id" required>
+            {% for materia in materias %}
+                <option value="{{ materia.id }}">{{ materia.nombre }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Comenzar diagnóstico</button>
+    </form>
+    {% else %}
+    <p><em>Todavía no hay materias cargadas en el sistema.</em></p>
+    {% endif %}
+</div>
+{% endblock %}

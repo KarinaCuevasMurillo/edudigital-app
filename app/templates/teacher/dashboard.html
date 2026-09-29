@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Mis salones — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Mis salones</h1>
+    <p>Tienes {{ salones|length }} de {{ max_salones }} salones disponibles para esta demostración.</p>
+
+    {% if salones %}
+        {% for salon in salones %}
+        <div class="tema-item">
+            <div>
+                <strong>{{ salon.nombre }}</strong><br>
+                <span style="font-size:0.9rem; color:#6b7280;">Código de acceso: <strong>{{ salon.codigo_acceso }}</strong></span>
+            </div>
+            <a href="{{ url_for('teacher.ver_salon', salon_id=salon.id) }}" class="btn">Ver salón</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p><em>Todavía no has creado ningún salón.</em></p>
+    {% endif %}
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    {% if salones|length < max_salones %}
+        <a href="{{ url_for('teacher.nuevo_salon') }}" class="btn">Crear nuevo salón</a>
+    {% else %}
+        <p><em>Ya alcanzaste el máximo de salones para esta demostración.</em></p>
+    {% endif %}
+</div>
+{% endblock %}

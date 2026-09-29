@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Crear cuenta</h1>
+    <form method="POST">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="correo">Correo</label>
+        <input type="email" id="correo" name="correo" required>
+
+        <label for="contrasena">Contraseña</label>
+        <input type="password" id="contrasena" name="contrasena" required minlength="6">
+
+        <label for="rol">Tipo de cuenta</label>
+        <select id="rol" name="rol">
+            <option value="estudiante">Estudiante</option>
+            <option value="docente">Docente</option>
+        </select>
+
+        <button type="submit">Crear cuenta</button>
+    </form>
+    <p style="margin-top:16px;">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+</div>
+{% endblock %}

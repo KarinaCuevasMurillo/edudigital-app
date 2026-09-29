@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ tema.nombre }} — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ tema.nombre }}</h1>
+    <p>
+        Tu nivel actual en este tema:
+        <span class="badge badge-estable">{{ progreso.nivel_actual }}</span>
+        {% if progreso.estado == 'dominado' %}
+            <span class="badge badge-avance">Dominado</span>
+        {% endif %}
+    </p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    {% if recursos %}
+        {% for recurso in recursos %}
+        <div class="recurso-bloque">
+            <span class="badge badge-estable">{{ recurso.tipo }}</span>
+            <p>{{ recurso.contenido }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p><em>Todavía no hay recursos cargados para tu nivel en este tema.</em></p>
+    {% endif %}
+
+    <a href="{{ url_for('student.quiz_tema', tema_id=tema.id) }}" class="btn">Hacer quiz de este tema</a>
+    <a href="{{ url_for('student.dashboard') }}" class="btn" style="background:#1B3A6B;">Volver a mi progreso</a>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Unirme a un salón — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Unirme a un salón</h1>
+    <p>Pide a tu docente el código de acceso del salón.</p>
+
+    <form method="POST">
+        <label for="codigo">Código de acceso</label>
+        <input type="text" id="codigo" name="codigo" maxlength="6" style="text-transform:uppercase;" required>
+
+        <button type="submit">Unirme</button>
+    </form>
+    <p style="margin-top:16px;"><a href="{{ url_for('student.dashboard') }}">Volver a mi progreso</a></p>
+</div>
+{% endblock %}

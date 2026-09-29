@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Crear salón — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Crear nuevo salón</h1>
+    <form method="POST">
+        <label for="nombre">Nombre del salón</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ej. Programación 3B" required>
+
+        <button type="submit">Crear salón</button>
+    </form>
+    <p style="margin-top:16px;"><a href="{{ url_for('teacher.dashboard') }}">Volver a mis salones</a></p>
+</div>
+{% endblock %}

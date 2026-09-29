@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Mi progreso — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Mi progreso</h1>
+
+    {% if progresos %}
+        <p>Estos son los temas en los que ya tienes un nivel asignado:</p>
+        {% for progreso in progresos %}
+        <div class="tema-item">
+            <div>
+                <strong>{{ progreso.tema.nombre }}</strong>
+                <span class="badge badge-{{ 'avance' if progreso.estado == 'dominado' else 'estable' }}">
+                    Nivel: {{ progreso.nivel_actual }}
+                </span>
+                {% if progreso.estado == 'dominado' %}
+                    <span class="badge badge-avance">Dominado</span>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('student.ver_tema', tema_id=progreso.tema_id) }}" class="btn">Ver contenido</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p><em>Todavía no has hecho ningún diagnóstico.</em></p>
+    {% endif %}
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <a href="{{ url_for('student.diagnostico') }}" class="btn">Diagnosticar una nueva materia</a>
+    <a href="{{ url_for('student.unirse_salon') }}" class="btn" style="background:#1B3A6B;">Unirme a un salón</a>
+</div>
+{% endblock %}

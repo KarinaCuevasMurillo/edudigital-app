@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Quiz: {{ tema.nombre }} — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Quiz: {{ tema.nombre }}</h1>
+    <p>Si sacas 80% o más, subes de nivel. Si sacas menos de 50%, bajas de nivel para reforzar.</p>
+
+    {% if preguntas %}
+    <form method="POST">
+        {% for pregunta in preguntas %}
+        <div class="pregunta-bloque">
+            <p><strong>{{ loop.index }}. {{ pregunta.enunciado }}</strong></p>
+
+            {% for opcion in pregunta.opciones %}
+                {% set letra = opcion[0] %}
+                <label class="opcion-label">
+                    <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ letra }}" required>
+                    {{ opcion }}
+                </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit">Enviar quiz</button>
+    </form>
+    {% else %}
+    <p><em>Todavía no hay preguntas cargadas para este tema.</em></p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ salon.nombre }} — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ salon.nombre }}</h1>
+    <p>Código de acceso para tus alumnos: <strong>{{ salon.codigo_acceso }}</strong></p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2 style="color:#0F2350; margin-bottom:12px;">Estudiantes ({{ estudiantes_info|length }})</h2>
+
+    {% if estudiantes_info %}
+        {% for info in estudiantes_info %}
+        <div class="tema-item">
+            <div>{{ info.usuario.nombre }}</div>
+            <span class="badge badge-{{ info.estado }}">
+                {% if info.estado == 'avance' %}Avance
+                {% elif info.estado == 'decadencia' %}Decadencia
+                {% elif info.estado == 'estable' %}Estable
+                {% else %}Sin actividad
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p><em>Todavía no hay estudiantes en este salón. Comparte el código de acceso para que se unan.</em></p>
+    {% endif %}
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+    <a href="{{ url_for('teacher.dashboard') }}" class="btn" style="background:#1B3A6B;">Volver a mis salones</a>
+</div>
+{% endblock %}

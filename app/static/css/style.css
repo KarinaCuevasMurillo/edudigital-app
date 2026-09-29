@@ -1,0 +1,128 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Cambria, 'Times New Roman', Georgia, serif;
+    background: #f4f6fb;
+    color: #1f2937;
+}
+
+.navbar {
+    background: #0F2350;
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-block { display: flex; flex-direction: column; line-height: 1.2; }
+
+.navbar a { color: white; text-decoration: none; margin-left: 16px; }
+.navbar .brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-left: 0;
+    letter-spacing: 0.5px;
+}
+.navbar .tagline {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #c7d2e8;
+    margin-top: 2px;
+}
+
+.container {
+    max-width: 700px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+.flash {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-family: Cambria, 'Times New Roman', Georgia, serif;
+}
+.flash-success { background: #d1fae5; color: #065f46; }
+.flash-error { background: #fee2e2; color: #991b1b; }
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.card h1 {
+    color: #0F2350;
+    margin-bottom: 8px;
+}
+
+form label { display: block; margin: 12px 0 4px; font-weight: 600; color: #0F2350; }
+form input, form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: Cambria, 'Times New Roman', Georgia, serif;
+}
+
+button, .btn {
+    display: inline-block;
+    background: #0F2350;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: Cambria, 'Times New Roman', Georgia, serif;
+    cursor: pointer;
+    margin-top: 16px;
+    text-decoration: none;
+}
+button:hover, .btn:hover { background: #1B3A6B; }
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-avance { background: #d1fae5; color: #065f46; }
+.badge-decadencia { background: #fee2e2; color: #991b1b; }
+.badge-estable { background: #e0e7ff; color: #1B3A6B; }
+.badge-sin_actividad { background: #f3f4f6; color: #6b7280; }
+
+.pregunta-bloque {
+    margin: 20px 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.opcion-label {
+    display: block;
+    font-weight: normal;
+    margin: 6px 0;
+    cursor: pointer;
+}
+
+.opcion-label input[type="radio"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+.tema-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.recurso-bloque {
+    padding: 14px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
