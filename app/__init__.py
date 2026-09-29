@@ -27,5 +27,7 @@ def create_app():
     with app.app_context():
         from app import models
         db.create_all()
+        from app.seed_data import cargar_datos_ejemplo
+        cargar_datos_ejemplo()
 
     return app
