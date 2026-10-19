@@ -56,6 +56,19 @@ class PreguntaDiagnostico(db.Model):
     respuesta_correcta = db.Column(db.String(1), nullable=False)  # 'a', 'b', 'c' o 'd'
 
 
+class PreguntaQuiz(db.Model):
+    """Banco de preguntas del quiz de cada tema (distinto al del diagnóstico)."""
+    __tablename__ = 'preguntas_quiz'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tema_id = db.Column(db.Integer, db.ForeignKey('temas.id'), nullable=False)
+    enunciado = db.Column(db.Text, nullable=False)
+    opciones = db.Column(db.JSON, nullable=False)
+    respuesta_correcta = db.Column(db.String(1), nullable=False)
+
+    tema = db.relationship('Tema', backref='preguntas_quiz')
+
+
 class Recurso(db.Model):
     __tablename__ = 'recursos'
 

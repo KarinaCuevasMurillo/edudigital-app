@@ -13,7 +13,7 @@
 
         {% for pregunta in preguntas %}
         <div class="pregunta-bloque">
-            <p><strong>{{ pregunta.enunciado }}</strong></p>
+            <p style="white-space: pre-wrap;"><strong>{{ pregunta.enunciado }}</strong></p>
             <input type="hidden" name="pregunta_tema_{{ pregunta.tema_id }}" value="{{ pregunta.id }}">
 
             {% for opcion in pregunta.opciones %}

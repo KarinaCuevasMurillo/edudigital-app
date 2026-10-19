@@ -18,7 +18,7 @@
         {% for recurso in recursos %}
         <div class="recurso-bloque">
             <span class="badge badge-estable">{{ recurso.tipo }}</span>
-            <p>{{ recurso.contenido }}</p>
+            <p style="white-space: pre-wrap;">{{ recurso.contenido }}</p>
         </div>
         {% endfor %}
     {% else %}

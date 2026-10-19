@@ -2,7 +2,7 @@ import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
-from app.models import Materia, Tema, PreguntaDiagnostico, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante
+from app.models import Materia, Tema, PreguntaDiagnostico, PreguntaQuiz, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante
 student_bp = Blueprint('student', __name__, url_prefix='/estudiante')
 
 
@@ -132,11 +132,11 @@ def quiz_tema(tema_id):
         usuario_id=current_user.id, tema_id=tema_id).first_or_404()
 
     if request.method == 'GET':
-        preguntas = PreguntaDiagnostico.query.filter_by(tema_id=tema_id).all()
+        preguntas = PreguntaQuiz.query.filter_by(tema_id=tema_id).all()
         return render_template('student/quiz.html', tema=tema, preguntas=preguntas)
 
     # POST: calificar el quiz y aplicar la regla de personalización
-    preguntas = PreguntaDiagnostico.query.filter_by(tema_id=tema_id).all()
+    preguntas = PreguntaQuiz.query.filter_by(tema_id=tema_id).all()
     correctas = 0
     for pregunta in preguntas:
         respuesta = request.form.get(f'pregunta_{pregunta.id}')
