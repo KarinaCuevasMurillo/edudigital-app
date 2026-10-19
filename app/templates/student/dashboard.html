@@ -5,6 +5,10 @@
 <div class="card">
     <h1>Mi progreso</h1>
 
+    {% if salones %}
+        <p>Salones: {% for s in salones %}<span class="badge badge-estable">{{ s.nombre }}</span> {% endfor %}</p>
+    {% endif %}
+
     {% if progresos %}
         <p>Estos son los temas en los que ya tienes un nivel asignado:</p>
         {% for progreso in progresos %}

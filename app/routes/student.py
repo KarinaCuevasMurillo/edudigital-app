@@ -5,6 +5,13 @@ from app import db
 from app.models import Materia, Tema, PreguntaDiagnostico, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante
 student_bp = Blueprint('student', __name__, url_prefix='/estudiante')
 
+
+@student_bp.before_request
+@login_required
+def _solo_estudiantes():
+    if current_user.rol == 'docente':
+        return redirect(url_for('teacher.dashboard'))
+
 NIVELES = ['basico', 'intermedio', 'avanzado']
 
 
@@ -35,7 +42,9 @@ def nivel_anterior(nivel_actual):
 @login_required
 def dashboard():
     progresos = ProgresoUsuario.query.filter_by(usuario_id=current_user.id).all()
-    return render_template('student/dashboard.html', progresos=progresos)
+    salones = (Salon.query.join(SalonEstudiante, SalonEstudiante.salon_id == Salon.id)
+               .filter(SalonEstudiante.usuario_id == current_user.id).all())
+    return render_template('student/dashboard.html', progresos=progresos, salones=salones)
 
 
 @student_bp.route('/diagnostico', methods=['GET', 'POST'])
@@ -91,6 +100,9 @@ def diagnostico():
                 nivel_actual=nivel_inicial,
                 estado='en_curso'
             ))
+        else:  # repetir el diagnóstico reasigna el nivel
+            progreso_existente.nivel_actual = nivel_inicial
+            progreso_existente.estado = 'en_curso'
     db.session.commit()
 
     flash(f'Diagnóstico completado: {porcentaje:.0f}% de aciertos. '
@@ -138,6 +150,7 @@ def quiz_tema(tema_id):
 
     # Regla de personalización (RF-06): sube o baja de nivel según umbral
     mensaje_nivel = ''
+    era_avanzado = progreso.nivel_actual == 'avanzado'
     if porcentaje >= 80 and progreso.nivel_actual != 'avanzado':
         progreso.nivel_actual = siguiente_nivel(progreso.nivel_actual)
         mensaje_nivel = f' ¡Subiste a nivel {progreso.nivel_actual}!'
@@ -145,8 +158,10 @@ def quiz_tema(tema_id):
         progreso.nivel_actual = nivel_anterior(progreso.nivel_actual)
         mensaje_nivel = f' Bajaste a nivel {progreso.nivel_actual} para reforzar.'
 
-    if porcentaje >= 80 and progreso.nivel_actual == 'avanzado':
+    # Dominado solo si ya estaba en avanzado ANTES de este intento y vuelve a sacar >= 80
+    if porcentaje >= 80 and era_avanzado:
         progreso.estado = 'dominado'
+        mensaje_nivel = ' ¡Dominaste este tema!'
 
     db.session.commit()
 

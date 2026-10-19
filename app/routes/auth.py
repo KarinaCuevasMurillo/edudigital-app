@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
@@ -7,16 +7,28 @@ from app.models import Usuario
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
+def _inicio_por_rol(usuario):
+    if usuario.rol == 'docente':
+        return redirect(url_for('teacher.dashboard'))
+    return redirect(url_for('student.dashboard'))
+
+
 @auth_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
     if current_user.is_authenticated:
-        return redirect(url_for('student.dashboard'))
+        return _inicio_por_rol(current_user)
 
     if request.method == 'POST':
         nombre = request.form.get('nombre', '').strip()
         correo = request.form.get('correo', '').strip().lower()
         contrasena = request.form.get('contrasena', '')
         rol = request.form.get('rol', 'estudiante')
+        if rol not in ('estudiante', 'docente'):
+            rol = 'estudiante'
+
+        if rol == 'docente' and request.form.get('codigo_docente', '').strip() != current_app.config['DOCENTE_CODIGO']:
+            flash('Código de docente incorrecto.', 'error')
+            return redirect(url_for('auth.registro'))
 
         if not nombre or not correo or not contrasena:
             flash('Todos los campos son obligatorios.', 'error')
@@ -48,7 +60,7 @@ def registro():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('student.dashboard'))
+        return _inicio_por_rol(current_user)
 
     if request.method == 'POST':
         correo = request.form.get('correo', '').strip().lower()

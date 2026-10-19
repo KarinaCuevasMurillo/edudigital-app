@@ -20,8 +20,21 @@
             <option value="docente">Docente</option>
         </select>
 
+        <div id="campo-codigo" style="display:none;">
+            <label for="codigo_docente">Código de docente</label>
+            <input type="text" id="codigo_docente" name="codigo_docente" autocomplete="off">
+        </div>
+
         <button type="submit">Crear cuenta</button>
     </form>
     <p style="margin-top:16px;">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
 </div>
+<script>
+    var rol = document.getElementById('rol');
+    function mostrarCodigo() {
+        document.getElementById('campo-codigo').style.display = rol.value === 'docente' ? 'block' : 'none';
+    }
+    rol.addEventListener('change', mostrarCodigo);
+    mostrarCodigo();
+</script>
 {% endblock %}
