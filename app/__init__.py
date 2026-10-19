@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
@@ -23,6 +23,11 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(teacher_bp)
+
+    @app.route('/')
+    def inicio():
+        # La raíz manda al login; si ya hay sesión, el login redirige según el rol.
+        return redirect(url_for('auth.login'))
 
     with app.app_context():
         from app import models
