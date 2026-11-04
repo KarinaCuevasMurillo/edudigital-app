@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ estudiante.nombre }} — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ estudiante.nombre }}</h1>
+    <p>Salón: <strong>{{ salon.nombre }}</strong> ·
+        <span class="badge badge-{{ estado }}">
+            {% if estado == 'avance' %}Avance{% elif estado == 'decadencia' %}Decadencia
+            {% elif estado == 'estable' %}Estable{% else %}Sin actividad{% endif %}
+        </span>
+    </p>
+    <p>Promedio de quizzes:
+        {% if promedio is not none %}<strong>{{ '%.0f'|format(promedio) }}%</strong> ({{ resultados|length }} quizzes){% else %}<em>aún no ha hecho quizzes</em>{% endif %}
+    </p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2 style="color:#0F2350; margin-bottom:12px;">Nivel por tema</h2>
+    {% if progresos %}
+        {% for pr in progresos %}
+        <div class="tema-item">
+            <div>{{ pr.tema.nombre }}</div>
+            <div>
+                <span class="badge badge-estable">Nivel: {{ pr.nivel_actual }}</span>
+                {% if pr.estado == 'dominado' %}<span class="badge badge-avance">Dominado</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p><em>Todavía no ha hecho el diagnóstico.</em></p>
+    {% endif %}
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2 style="color:#0F2350; margin-bottom:12px;">Historial de quizzes</h2>
+    {% if resultados %}
+        <div class="grafica">
+            {% for r in resultados %}
+            <div class="grafica-col" title="{{ r.tema.nombre }} — {{ r.fecha.strftime('%d/%m/%Y') }}: {{ '%.0f'|format(r.puntaje) }}%">
+                <span class="grafica-valor">{{ '%.0f'|format(r.puntaje) }}%</span>
+                <div class="grafica-area">
+                    <div class="grafica-barra {{ 'barra-avance' if r.puntaje >= 80 else ('barra-decadencia' if r.puntaje < 50 else 'barra-estable') }}"
+                         style="height: {{ r.puntaje|round|int }}%;"></div>
+                </div>
+                <span class="grafica-fecha">{{ r.fecha.strftime('%d/%m') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <p style="font-size:0.85rem; color:#6b7280;">Verde: 80% o más · Azul: entre 50% y 79% · Rojo: menos de 50%.</p>
+    {% else %}
+        <p><em>Todavía no hay quizzes registrados.</em></p>
+    {% endif %}
+
+    <a href="{{ url_for('teacher.ver_salon', salon_id=salon.id) }}" class="btn" style="background:#1B3A6B;">Volver al salón</a>
+</div>
+{% endblock %}

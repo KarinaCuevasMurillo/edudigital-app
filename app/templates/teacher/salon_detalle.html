@@ -8,12 +8,27 @@
 
     <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
 
+    {% if estudiantes_info %}
+    <h2 style="color:#0F2350; margin-bottom:12px;">Resumen del grupo</h2>
+    <p>Promedio de quizzes:
+        {% if promedio is not none %}<strong>{{ '%.0f'|format(promedio) }}%</strong>{% else %}<em>aún sin quizzes</em>{% endif %}
+    </p>
+    {% for clave, etiqueta in [('avance', 'Avance'), ('estable', 'Estable'), ('decadencia', 'Decadencia'), ('sin_actividad', 'Sin actividad')] %}
+    <div class="barra-fila">
+        <span class="barra-etiqueta">{{ etiqueta }}</span>
+        <div class="barra-pista"><div class="barra-relleno barra-{{ clave }}" style="width: {{ (conteo[clave] / estudiantes_info|length * 100)|round|int }}%;"></div></div>
+        <span class="barra-valor">{{ conteo[clave] }}</span>
+    </div>
+    {% endfor %}
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+    {% endif %}
+
     <h2 style="color:#0F2350; margin-bottom:12px;">Estudiantes ({{ estudiantes_info|length }})</h2>
 
     {% if estudiantes_info %}
         {% for info in estudiantes_info %}
         <div class="tema-item">
-            <div>{{ info.usuario.nombre }}</div>
+            <div><a href="{{ url_for('teacher.ver_estudiante', salon_id=salon.id, usuario_id=info.usuario.id) }}">{{ info.usuario.nombre }}</a></div>
             <span class="badge badge-{{ info.estado }}">
                 {% if info.estado == 'avance' %}Avance
                 {% elif info.estado == 'decadencia' %}Decadencia

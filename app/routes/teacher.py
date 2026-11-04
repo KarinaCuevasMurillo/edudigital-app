@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from app import db
-from app.models import Salon, SalonEstudiante, ResultadoQuiz
+from app.models import Salon, SalonEstudiante, ResultadoQuiz, ProgresoUsuario, Tema
 from app.demo import crear_estudiantes_demo, borrar_usuarios_demo
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/docente')
@@ -99,8 +99,17 @@ def ver_salon(salon_id):
         for inscripcion in inscripciones
     ]
 
-    return render_template('teacher/salon_detalle.html',
-                            salon=salon, estudiantes_info=estudiantes_info)
+    # Resumen del grupo: cuántos hay en cada estado y promedio de todos los quizzes
+    conteo = {'avance': 0, 'estable': 0, 'decadencia': 0, 'sin_actividad': 0}
+    for info in estudiantes_info:
+        conteo[info['estado']] += 1
+
+    ids = [i['usuario'].id for i in estudiantes_info]
+    puntajes = [r.puntaje for r in ResultadoQuiz.query.filter(ResultadoQuiz.usuario_id.in_(ids)).all()] if ids else []
+    promedio = sum(puntajes) / len(puntajes) if puntajes else None
+
+    return render_template('teacher/salon_detalle.html', salon=salon,
+                            estudiantes_info=estudiantes_info, conteo=conteo, promedio=promedio)
 
 
 @teacher_bp.route('/salon/<int:salon_id>/eliminar', methods=['POST'])
@@ -145,3 +154,26 @@ def cargar_demo():
 
     flash('Salón de demostración creado con 8 estudiantes ficticios.', 'success')
     return redirect(url_for('teacher.ver_salon', salon_id=salon.id))
+
+
+@teacher_bp.route('/salon/<int:salon_id>/estudiante/<int:usuario_id>')
+@login_required
+def ver_estudiante(salon_id, usuario_id):
+    _solo_docentes()
+    salon = Salon.query.get_or_404(salon_id)
+    if salon.docente_id != current_user.id:
+        abort(403)
+
+    # El estudiante debe pertenecer a este salón
+    inscripcion = SalonEstudiante.query.filter_by(salon_id=salon.id, usuario_id=usuario_id).first_or_404()
+    estudiante = inscripcion.estudiante
+
+    progresos = (ProgresoUsuario.query.filter_by(usuario_id=usuario_id)
+                 .join(Tema, Tema.id == ProgresoUsuario.tema_id).order_by(Tema.id).all())
+    resultados = (ResultadoQuiz.query.filter_by(usuario_id=usuario_id)
+                  .order_by(ResultadoQuiz.fecha.asc()).all())
+    promedio = sum(r.puntaje for r in resultados) / len(resultados) if resultados else None
+
+    return render_template('teacher/estudiante_detalle.html', salon=salon, estudiante=estudiante,
+                            estado=estado_estudiante(usuario_id), progresos=progresos,
+                            resultados=resultados, promedio=promedio)
