@@ -13,7 +13,13 @@
                 <strong>{{ salon.nombre }}</strong><br>
                 <span style="font-size:0.9rem; color:#6b7280;">Código de acceso: <strong>{{ salon.codigo_acceso }}</strong></span>
             </div>
-            <a href="{{ url_for('teacher.ver_salon', salon_id=salon.id) }}" class="btn">Ver salón</a>
+            <div>
+                <a href="{{ url_for('teacher.ver_salon', salon_id=salon.id) }}" class="btn">Ver salón</a>
+                <form method="POST" action="{{ url_for('teacher.eliminar_salon', salon_id=salon.id) }}" style="display:inline;"
+                  onsubmit="return confirm('¿Eliminar el salón &quot;{{ salon.nombre|e }}&quot;? Los estudiantes dejarán de pertenecer a él, pero conservan su cuenta y su progreso. Esta acción no se puede deshacer.');">
+                <button type="submit" class="btn" style="background:#b91c1c;">Eliminar salón</button>
+            </form>
+            </div>
         </div>
         {% endfor %}
     {% else %}

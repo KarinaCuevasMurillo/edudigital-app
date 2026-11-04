@@ -29,5 +29,9 @@
 
     <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
     <a href="{{ url_for('teacher.dashboard') }}" class="btn" style="background:#1B3A6B;">Volver a mis salones</a>
+    <form method="POST" action="{{ url_for('teacher.eliminar_salon', salon_id=salon.id) }}" style="display:inline;"
+              onsubmit="return confirm('¿Eliminar el salón &quot;{{ salon.nombre|e }}&quot;? Los estudiantes dejarán de pertenecer a él, pero conservan su cuenta y su progreso. Esta acción no se puede deshacer.');">
+            <button type="submit" class="btn" style="background:#b91c1c;">Eliminar salón</button>
+        </form>
 </div>
 {% endblock %}

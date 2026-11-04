@@ -100,3 +100,22 @@ def ver_salon(salon_id):
 
     return render_template('teacher/salon_detalle.html',
                             salon=salon, estudiantes_info=estudiantes_info)
+
+
+@teacher_bp.route('/salon/<int:salon_id>/eliminar', methods=['POST'])
+@login_required
+def eliminar_salon(salon_id):
+    _solo_docentes()
+    salon = Salon.query.get_or_404(salon_id)
+
+    if salon.docente_id != current_user.id:
+        abort(403)
+
+    nombre = salon.nombre
+    # Solo se quitan las inscripciones: las cuentas y el progreso de los estudiantes se conservan.
+    SalonEstudiante.query.filter_by(salon_id=salon.id).delete()
+    db.session.delete(salon)
+    db.session.commit()
+
+    flash(f'Salón "{nombre}" eliminado.', 'success')
+    return redirect(url_for('teacher.dashboard'))
