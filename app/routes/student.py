@@ -1,5 +1,5 @@
 import random
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from app import db
 from app.models import Materia, Tema, PreguntaDiagnostico, PreguntaQuiz, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante
@@ -138,8 +138,10 @@ def quiz_tema(tema_id):
     # POST: calificar el quiz y aplicar la regla de personalización
     preguntas = PreguntaQuiz.query.filter_by(tema_id=tema_id).all()
     correctas = 0
+    respuestas_dadas = {}
     for pregunta in preguntas:
         respuesta = request.form.get(f'pregunta_{pregunta.id}')
+        respuestas_dadas[str(pregunta.id)] = respuesta
         if respuesta == pregunta.respuesta_correcta:
             correctas += 1
 
@@ -166,7 +168,30 @@ def quiz_tema(tema_id):
     db.session.commit()
 
     flash(f'Obtuviste {porcentaje:.0f}% en el quiz.{mensaje_nivel}', 'success')
-    return redirect(url_for('student.ver_tema', tema_id=tema_id))
+    # Se guarda en la sesión para mostrar la revisión (y que recargar la página no vuelva a calificar)
+    session['revision_quiz'] = {'tema_id': tema_id, 'respuestas': respuestas_dadas}
+    return redirect(url_for('student.revision_quiz', tema_id=tema_id))
+
+
+@student_bp.route('/tema/<int:tema_id>/quiz/resultado')
+@login_required
+def revision_quiz(tema_id):
+    tema = Tema.query.get_or_404(tema_id)
+    datos = session.get('revision_quiz')
+    if not datos or datos.get('tema_id') != tema_id:
+        return redirect(url_for('student.ver_tema', tema_id=tema_id))
+
+    revision = []
+    for pregunta in PreguntaQuiz.query.filter_by(tema_id=tema_id).all():
+        elegida = datos['respuestas'].get(str(pregunta.id))
+        revision.append({
+            'pregunta': pregunta,
+            'elegida': elegida,
+            'acerto': elegida == pregunta.respuesta_correcta,
+        })
+    correctas = sum(1 for r in revision if r['acerto'])
+    return render_template('student/quiz_resultado.html', tema=tema,
+                           revision=revision, correctas=correctas, total=len(revision))
 
 @student_bp.route('/unirse-salon', methods=['GET', 'POST'])
 @login_required

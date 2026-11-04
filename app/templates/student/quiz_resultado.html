@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Resultado: {{ tema.nombre }} — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Resultado: {{ tema.nombre }}</h1>
+    <p>Acertaste <strong>{{ correctas }}</strong> de <strong>{{ total }}</strong> preguntas.</p>
+
+    {% for r in revision %}
+    <div class="pregunta-bloque" style="border-left: 4px solid {{ '#10b981' if r.acerto else '#ef4444' }}; padding-left: 12px;">
+        <p style="white-space: pre-wrap;"><strong>{{ loop.index }}. {{ r.pregunta.enunciado }}</strong></p>
+
+        {% for opcion in r.pregunta.opciones %}
+            {% set letra = opcion[0] %}
+            <p style="margin: 4px 0;
+                {% if letra == r.pregunta.respuesta_correcta %}color:#065f46; font-weight:bold;
+                {% elif letra == r.elegida %}color:#991b1b; text-decoration: line-through;{% endif %}">
+                {{ opcion }}
+                {% if letra == r.pregunta.respuesta_correcta %}✔ Correcta{% endif %}
+                {% if letra == r.elegida and not r.acerto %}— tu respuesta{% endif %}
+            </p>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <a href="{{ url_for('student.ver_tema', tema_id=tema.id) }}" class="btn">Volver al tema</a>
+    <a href="{{ url_for('student.dashboard') }}" class="btn" style="background:#1B3A6B;">Mi progreso</a>
+</div>
+{% endblock %}
