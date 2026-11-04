@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app import db
 from app.models import Salon, SalonEstudiante, ResultadoQuiz
+from app.demo import crear_estudiantes_demo, borrar_usuarios_demo
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/docente')
 
@@ -112,10 +113,35 @@ def eliminar_salon(salon_id):
         abort(403)
 
     nombre = salon.nombre
-    # Solo se quitan las inscripciones: las cuentas y el progreso de los estudiantes se conservan.
+    # Solo se quitan las inscripciones: las cuentas y el progreso de los estudiantes reales se conservan.
+    # Los estudiantes ficticios del salón de demostración sí se eliminan por completo.
+    inscripciones = SalonEstudiante.query.filter_by(salon_id=salon.id).all()
+    usuarios = [i.estudiante for i in inscripciones]
     SalonEstudiante.query.filter_by(salon_id=salon.id).delete()
     db.session.delete(salon)
+    db.session.flush()
+    borrar_usuarios_demo(usuarios)
     db.session.commit()
 
     flash(f'Salón "{nombre}" eliminado.', 'success')
     return redirect(url_for('teacher.dashboard'))
+
+
+@teacher_bp.route('/salon/demo', methods=['POST'])
+@login_required
+def cargar_demo():
+    _solo_docentes()
+
+    if Salon.query.filter_by(docente_id=current_user.id).count() >= MAX_SALONES:
+        flash(f'Ya alcanzaste el máximo de {MAX_SALONES} salones. Elimina uno para cargar la demostración.', 'error')
+        return redirect(url_for('teacher.dashboard'))
+
+    salon = Salon(docente_id=current_user.id, nombre='Salón de demostración',
+                  codigo_acceso=generar_codigo_acceso())
+    db.session.add(salon)
+    db.session.flush()
+    crear_estudiantes_demo(salon)
+    db.session.commit()
+
+    flash('Salón de demostración creado con 8 estudiantes ficticios.', 'success')
+    return redirect(url_for('teacher.ver_salon', salon_id=salon.id))

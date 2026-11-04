@@ -30,6 +30,9 @@
 
     {% if salones|length < max_salones %}
         <a href="{{ url_for('teacher.nuevo_salon') }}" class="btn">Crear nuevo salón</a>
+        <form method="POST" action="{{ url_for('teacher.cargar_demo') }}" style="display:inline;">
+            <button type="submit" class="btn" style="background:#1B3A6B;">Cargar salón de demostración</button>
+        </form>
     {% else %}
         <p><em>Ya alcanzaste el máximo de salones para esta demostración.</em></p>
     {% endif %}
