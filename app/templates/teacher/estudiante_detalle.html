@@ -14,6 +14,11 @@
         {% if promedio is not none %}<strong>{{ '%.0f'|format(promedio) }}%</strong> ({{ resultados|length }} quizzes){% else %}<em>aún no ha hecho quizzes</em>{% endif %}
     </p>
 
+    <p>Diagnóstico inicial:
+        {% if resumen.diag_pct is not none %}<strong>{{ '%.0f'|format(resumen.diag_pct) }}%</strong> (nivel {{ resumen.nivel_inicial }}){% else %}<em>sin diagnóstico</em>{% endif %}
+        {% if resumen.mejora_vs_diag is not none %} · Promedio de quizzes frente al diagnóstico: <strong>{{ '%+.0f'|format(resumen.mejora_vs_diag) }} puntos</strong>{% endif %}
+    </p>
+
     <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
 
     <h2 style="color:#0F2350; margin-bottom:12px;">Nivel por tema</h2>

@@ -120,3 +120,28 @@ class SalonEstudiante(db.Model):
     fecha_ingreso = db.Column(db.DateTime, default=datetime.utcnow)
 
     estudiante = db.relationship('Usuario', foreign_keys=[usuario_id])
+
+class ResultadoDiagnostico(db.Model):
+    """Guarda cada diagnóstico para poder compararlo después con los quizzes."""
+    __tablename__ = 'resultados_diagnostico'
+
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    porcentaje = db.Column(db.Float, nullable=False)   # 0-100
+    nivel_asignado = db.Column(db.String(20), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class EncuestaUso(db.Model):
+    """Encuesta de usabilidad: una por estudiante, escala de 1 a 5."""
+    __tablename__ = 'encuestas_uso'
+
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), unique=True, nullable=False)
+    facilidad = db.Column(db.Integer, nullable=False)
+    claridad = db.Column(db.Integer, nullable=False)
+    utilidad = db.Column(db.Integer, nullable=False)
+    motivacion = db.Column(db.Integer, nullable=False)
+    recomendaria = db.Column(db.Integer, nullable=False)
+    comentario = db.Column(db.Text)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)

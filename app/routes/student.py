@@ -2,7 +2,7 @@ import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from app import db
-from app.models import Materia, Tema, PreguntaDiagnostico, PreguntaQuiz, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante
+from app.models import Materia, Tema, PreguntaDiagnostico, PreguntaQuiz, Recurso, ResultadoQuiz, ProgresoUsuario, Salon, SalonEstudiante, ResultadoDiagnostico, EncuestaUso
 student_bp = Blueprint('student', __name__, url_prefix='/estudiante')
 
 
@@ -44,7 +44,10 @@ def dashboard():
     progresos = ProgresoUsuario.query.filter_by(usuario_id=current_user.id).all()
     salones = (Salon.query.join(SalonEstudiante, SalonEstudiante.salon_id == Salon.id)
                .filter(SalonEstudiante.usuario_id == current_user.id).all())
-    return render_template('student/dashboard.html', progresos=progresos, salones=salones)
+    encuesta_hecha = EncuestaUso.query.filter_by(usuario_id=current_user.id).first() is not None
+    hizo_quiz = ResultadoQuiz.query.filter_by(usuario_id=current_user.id).first() is not None
+    return render_template('student/dashboard.html', progresos=progresos, salones=salones,
+                            encuesta_hecha=encuesta_hecha, hizo_quiz=hizo_quiz)
 
 
 @student_bp.route('/diagnostico', methods=['GET', 'POST'])
@@ -103,6 +106,8 @@ def diagnostico():
         else:  # repetir el diagnóstico reasigna el nivel
             progreso_existente.nivel_actual = nivel_inicial
             progreso_existente.estado = 'en_curso'
+    db.session.add(ResultadoDiagnostico(usuario_id=current_user.id, porcentaje=porcentaje,
+                                        nivel_asignado=nivel_inicial))
     db.session.commit()
 
     flash(f'Diagnóstico completado: {porcentaje:.0f}% de aciertos. '
@@ -216,3 +221,32 @@ def unirse_salon():
         return redirect(url_for('student.dashboard'))
 
     return render_template('student/unirse_salon.html')
+
+@student_bp.route('/encuesta', methods=['GET', 'POST'])
+@login_required
+def encuesta():
+    previa = EncuestaUso.query.filter_by(usuario_id=current_user.id).first()
+    if request.method == 'POST':
+        campos = ['facilidad', 'claridad', 'utilidad', 'motivacion', 'recomendaria']
+        try:
+            valores = {c: int(request.form.get(c, '')) for c in campos}
+        except ValueError:
+            flash('Responde todas las preguntas de la escala.', 'error')
+            return redirect(url_for('student.encuesta'))
+        if any(v < 1 or v > 5 for v in valores.values()):
+            flash('Las respuestas deben estar entre 1 y 5.', 'error')
+            return redirect(url_for('student.encuesta'))
+
+        comentario = request.form.get('comentario', '').strip()[:1000]
+        if previa is None:
+            previa = EncuestaUso(usuario_id=current_user.id, comentario=comentario, **valores)
+            db.session.add(previa)
+        else:  # si la vuelve a contestar, se actualiza (queda una sola por estudiante)
+            for c, v in valores.items():
+                setattr(previa, c, v)
+            previa.comentario = comentario
+        db.session.commit()
+        flash('¡Gracias por tu opinión!', 'success')
+        return redirect(url_for('student.dashboard'))
+
+    return render_template('student/encuesta.html', previa=previa)

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import Usuario
+from app.models import Usuario, Salon, SalonEstudiante
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -34,6 +34,18 @@ def registro():
             flash('Todos los campos son obligatorios.', 'error')
             return redirect(url_for('auth.registro'))
 
+        if not request.form.get('acepta_privacidad'):
+            flash('Debes aceptar el aviso de privacidad para crear tu cuenta.', 'error')
+            return redirect(url_for('auth.registro'))
+
+        codigo_salon = request.form.get('codigo_salon', '').strip().upper()
+        salon = None
+        if rol == 'estudiante' and codigo_salon:
+            salon = Salon.query.filter_by(codigo_acceso=codigo_salon).first()
+            if salon is None:
+                flash('El código de salón no existe. Revísalo o déjalo en blanco y únete después.', 'error')
+                return redirect(url_for('auth.registro'))
+
         if Usuario.query.filter_by(correo=correo).first():
             flash('Ya existe una cuenta con ese correo.', 'error')
             return redirect(url_for('auth.registro'))
@@ -45,10 +57,13 @@ def registro():
             rol=rol
         )
         db.session.add(nuevo_usuario)
+        db.session.flush()
+        if salon is not None:
+            db.session.add(SalonEstudiante(salon_id=salon.id, usuario_id=nuevo_usuario.id))
         db.session.commit()
 
         login_user(nuevo_usuario)
-        flash('¡Cuenta creada con éxito!', 'success')
+        flash('¡Cuenta creada con éxito!' + (f' Te uniste al salón "{salon.nombre}".' if salon else ''), 'success')
 
         if rol == 'docente':
             return redirect(url_for('teacher.dashboard'))

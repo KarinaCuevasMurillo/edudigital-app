@@ -20,10 +20,28 @@
             <option value="docente">Docente</option>
         </select>
 
+        <div id="campo-salon">
+            <label for="codigo_salon">Código de salón (opcional)</label>
+            <input type="text" id="codigo_salon" name="codigo_salon" maxlength="6" autocomplete="off" style="text-transform:uppercase;">
+        </div>
+
         <div id="campo-codigo" style="display:none;">
             <label for="codigo_docente">Código de docente</label>
             <input type="text" id="codigo_docente" name="codigo_docente" autocomplete="off">
         </div>
+
+        <details style="margin:14px 0; font-size:0.9rem; color:#374151;">
+            <summary style="cursor:pointer;"><strong>Aviso de privacidad</strong></summary>
+            <p style="margin-top:8px;">EduDigital es un prototipo académico del Instituto Tecnológico de Tijuana. Guardamos tu nombre,
+            tu correo, tu contraseña (cifrada), tus resultados del diagnóstico y de los quizzes y, si la contestas, tu opinión sobre la
+            plataforma. Estos datos se usan únicamente para el proyecto "Educación en la Era Digital" y para que tu docente vea el
+            avance del grupo. En el informe del proyecto los resultados se presentan de forma agrupada, sin tu nombre. No compartimos
+            tus datos con terceros y puedes pedir que se borre tu cuenta al equipo del proyecto.</p>
+        </details>
+        <label style="display:flex; gap:8px; align-items:flex-start; font-weight:normal;">
+            <input type="checkbox" name="acepta_privacidad" value="1" required style="width:auto; margin-top:4px;">
+            <span>He leído y acepto el aviso de privacidad.</span>
+        </label>
 
         <button type="submit">Crear cuenta</button>
     </form>
@@ -33,6 +51,7 @@
     var rol = document.getElementById('rol');
     function mostrarCodigo() {
         document.getElementById('campo-codigo').style.display = rol.value === 'docente' ? 'block' : 'none';
+        document.getElementById('campo-salon').style.display = rol.value === 'docente' ? 'none' : 'block';
     }
     rol.addEventListener('change', mostrarCodigo);
     mostrarCodigo();

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Encuesta de uso — EduDigital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Encuesta de uso</h1>
+    <p>Califica de 1 (muy en desacuerdo) a 5 (muy de acuerdo). Toma menos de un minuto.</p>
+
+    <form method="POST">
+        {% set preguntas = [
+            ('facilidad', 'La plataforma es fácil de usar.'),
+            ('claridad', 'Las explicaciones y los quizzes son claros.'),
+            ('utilidad', 'El contenido que me asignó se ajusta a mi nivel.'),
+            ('motivacion', 'Ver mi avance por tema me motiva a seguir practicando.'),
+            ('recomendaria', 'Recomendaría esta plataforma a otros estudiantes.')
+        ] %}
+        {% for clave, texto in preguntas %}
+        <fieldset style="border:none; padding:0; margin:0 0 16px 0;">
+            <legend style="font-weight:600; margin-bottom:6px;">{{ loop.index }}. {{ texto }}</legend>
+            {% for n in range(1, 6) %}
+            <label style="display:inline-flex; gap:4px; align-items:center; margin-right:14px; font-weight:normal;">
+                <input type="radio" name="{{ clave }}" value="{{ n }}" required style="width:auto;"
+                       {% if previa and previa[clave] == n %}checked{% endif %}> {{ n }}
+            </label>
+            {% endfor %}
+        </fieldset>
+        {% endfor %}
+
+        <label for="comentario">Comentarios o sugerencias (opcional)</label>
+        <textarea id="comentario" name="comentario" rows="4" maxlength="1000" style="width:100%;">{{ previa.comentario if previa and previa.comentario else '' }}</textarea>
+
+        <button type="submit">Enviar</button>
+    </form>
+    <p style="margin-top:16px;"><a href="{{ url_for('student.dashboard') }}">Volver a mi progreso</a></p>
+</div>
+{% endblock %}

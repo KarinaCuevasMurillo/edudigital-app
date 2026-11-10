@@ -208,6 +208,43 @@ TEMAS = [
 ]
 
 
+# --- Ampliación del banco de preguntas y reparto de respuestas correctas ---
+import re
+from app.seed_extra import EXTRA
+
+_LETRAS = 'abcd'
+
+
+def _sin_letra(opcion):
+    return re.sub(r'^[a-d]\)\s*', '', opcion)
+
+
+def _repartir(preguntas, desplazamiento):
+    """Mueve la opción correcta de cada pregunta para que las letras queden parejas (a, b, c, d)."""
+    resultado = []
+    for i, (enunciado, opciones, correcta) in enumerate(preguntas):
+        textos = [_sin_letra(o) for o in opciones]
+        idx = _LETRAS.index(correcta)
+        destino = (i + desplazamiento) % 4
+        textos[idx], textos[destino] = textos[destino], textos[idx]
+        nuevas = [f'{_LETRAS[j]}) {t}' for j, t in enumerate(textos)]
+        resultado.append((enunciado, nuevas, _LETRAS[destino]))
+    return resultado
+
+
+def _preparar():
+    existentes = {e for t in TEMAS for sec in ('diagnostico', 'quiz') for e, _, _ in t[sec]}
+    for n, tema in enumerate(TEMAS):
+        for sec in ('diagnostico', 'quiz'):
+            for enunciado, opciones in EXTRA.get(tema['nombre'], {}).get(sec, []):
+                if enunciado not in existentes:
+                    tema[sec].append((enunciado, opciones, 'a'))  # la correcta viene primero
+            tema[sec] = _repartir(tema[sec], n)
+
+
+_preparar()
+
+
 def cargar_datos_ejemplo():
     """Carga (o completa) la materia piloto. Es idempotente: no duplica lo que ya existe."""
     materia = Materia.query.filter_by(nombre=MATERIA['nombre']).first()
@@ -224,11 +261,15 @@ def cargar_datos_ejemplo():
             db.session.flush()
 
         for modelo, clave in ((PreguntaDiagnostico, 'diagnostico'), (PreguntaQuiz, 'quiz')):
-            existentes = {p.enunciado for p in modelo.query.filter_by(tema_id=tema.id).all()}
+            existentes = {p.enunciado: p for p in modelo.query.filter_by(tema_id=tema.id).all()}
             for enunciado, opciones, correcta in datos[clave]:
-                if enunciado not in existentes:
+                pregunta = existentes.get(enunciado)
+                if pregunta is None:
                     db.session.add(modelo(tema_id=tema.id, enunciado=enunciado,
                                           opciones=opciones, respuesta_correcta=correcta))
+                else:  # actualiza opciones y respuesta correcta con el reparto actual
+                    pregunta.opciones = opciones
+                    pregunta.respuesta_correcta = correcta
 
         for nivel, tipo, contenido in datos['recursos']:
             recurso = Recurso.query.filter_by(tema_id=tema.id, nivel=nivel).first()

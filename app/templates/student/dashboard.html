@@ -9,6 +9,13 @@
         <p>Salones: {% for s in salones %}<span class="badge badge-estable">{{ s.nombre }}</span> {% endfor %}</p>
     {% endif %}
 
+    {% if hizo_quiz and not encuesta_hecha %}
+        <div class="tema-item" style="background:#eff6ff;">
+            <div>¿Nos ayudas con una encuesta de 1 minuto sobre la plataforma?</div>
+            <a href="{{ url_for('student.encuesta') }}" class="btn">Contestar encuesta</a>
+        </div>
+    {% endif %}
+
     {% if progresos %}
         <p>Estos son los temas en los que ya tienes un nivel asignado:</p>
         {% for progreso in progresos %}
@@ -33,5 +40,6 @@
 
     <a href="{{ url_for('student.diagnostico') }}" class="btn">Diagnosticar una nueva materia</a>
     <a href="{{ url_for('student.unirse_salon') }}" class="btn" style="background:#1B3A6B;">Unirme a un salón</a>
+    {% if encuesta_hecha %}<a href="{{ url_for('student.encuesta') }}" class="btn" style="background:#1B3A6B;">Editar mi encuesta</a>{% endif %}
 </div>
 {% endblock %}

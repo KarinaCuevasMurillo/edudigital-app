@@ -21,6 +21,36 @@
     </div>
     {% endfor %}
     <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2 style="color:#0F2350; margin-bottom:12px;">Diagnóstico vs. quizzes</h2>
+    <p>Promedio del diagnóstico inicial:
+        {% if grupo.prom_diag is not none %}<strong>{{ '%.0f'|format(grupo.prom_diag) }}%</strong> ({{ grupo.con_diag }} estudiantes){% else %}<em>sin datos</em>{% endif %}</p>
+    <p>Promedio de quizzes:
+        {% if grupo.prom_quiz is not none %}<strong>{{ '%.0f'|format(grupo.prom_quiz) }}%</strong> ({{ grupo.con_quiz }} estudiantes){% else %}<em>sin datos</em>{% endif %}</p>
+    <p>Estudiantes cuyo promedio de quizzes superó su diagnóstico:
+        {% if grupo.comparables %}<strong>{{ grupo.mejoraron }} de {{ grupo.comparables }}</strong>{% else %}<em>sin datos</em>{% endif %}</p>
+    <p>Mejora promedio entre el primer y el último intento de un mismo tema:
+        {% if grupo.mejora_intentos is not none %}<strong>{{ '%+.0f'|format(grupo.mejora_intentos) }} puntos</strong>{% else %}<em>sin datos</em>{% endif %}</p>
+
+    <h2 style="color:#0F2350; margin:20px 0 12px;">Encuesta de uso ({{ grupo.con_encuesta }} respuestas)</h2>
+    {% if grupo.con_encuesta %}
+        {% for clave, etiqueta in [('facilidad', 'Facilidad de uso'), ('claridad', 'Claridad'), ('utilidad', 'Se ajusta a mi nivel'), ('motivacion', 'Motivación'), ('recomendaria', 'Lo recomendaría')] %}
+        <div class="barra-fila">
+            <span class="barra-etiqueta">{{ etiqueta }}</span>
+            <div class="barra-pista"><div class="barra-relleno barra-avance" style="width: {{ (medias[clave] / 5 * 100)|round|int }}%;"></div></div>
+            <span class="barra-valor">{{ '%.1f'|format(medias[clave]) }}</span>
+        </div>
+        {% endfor %}
+        <p style="font-size:0.85rem; color:#6b7280;">Escala de 1 a 5.</p>
+    {% else %}
+        <p><em>Aún nadie contesta la encuesta.</em></p>
+    {% endif %}
+
+    <p style="margin-top:16px;">
+        <a href="{{ url_for('teacher.exportar_estudiantes', salon_id=salon.id) }}" class="btn">Descargar resumen (CSV)</a>
+        <a href="{{ url_for('teacher.exportar_quizzes', salon_id=salon.id) }}" class="btn" style="background:#1B3A6B;">Descargar quizzes (CSV)</a>
+    </p>
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
     {% endif %}
 
     <h2 style="color:#0F2350; margin-bottom:12px;">Estudiantes ({{ estudiantes_info|length }})</h2>
